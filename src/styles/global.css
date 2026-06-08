@@ -1,3 +1,133 @@
-@layer theme, base, clerk, components, utilities; /* Ensure Clerk is compatible with Tailwind CSS v4 */
+@layer theme, base, clerk, components, utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
 
 @import 'tailwindcss';
+
+/* ============================================================
+   ⬢ POSTMORTEM — DESIGN SYSTEM
+   Drop this into your globals.css or import it at the top.
+   ============================================================ */
+
+   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+   /* ─── TOKENS ─────────────────────────────────────────────── */
+   
+   :root {
+     --pm-parchment:     #F8F3E8;
+     --pm-parchment-dk:  #F0E8D8;
+     --pm-warm-gray:     #9B9088;
+     --pm-border-subtle: #C5C8B5;
+     --pm-black:         #1A1A1A;
+     --pm-ink:           #2C2C2A;
+   
+     --pm-red:           #CC2222;
+     --pm-red-tint:      #FFF0F0;
+     --pm-green:         #22AA44;
+     --pm-green-tint:    #F0FFF4;
+     --pm-teal:          #0099AA;
+     --pm-teal-tint:     #E8F8FA;
+     --pm-gold:          #F0B429;
+     --pm-gold-tint:     #FFFBEB;
+     --pm-amber:         #CC7722;
+   
+     --pm-font-display:  'Playfair Display', Georgia, serif;
+     --pm-font-mono:     'IBM Plex Mono', 'Courier New', monospace;
+     --pm-font-prose:    'Spectral', Georgia, serif;
+   
+     --pm-border:        1.5px solid var(--pm-black);
+     --pm-border-light:  1.5px solid var(--pm-border-subtle);
+     --pm-border-heavy:  2px solid var(--pm-black);
+   
+     --pm-radius:        0px;
+     --pm-shadow:        none;
+   
+     --pm-max-w:         1200px;
+     --pm-pad-x:         28px;
+     --pm-section-gap:   2.5rem;
+   }
+   
+   /* ─── BASE RESETS (scoped to .pm-page) ───────────────────── */
+   
+   .pm-page {
+     background-color: var(--pm-parchment);
+     color: var(--pm-black);
+     font-family: var(--pm-font-mono);
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+   }
+   
+   .pm-page *,
+   .pm-page *::before,
+   .pm-page *::after {
+     box-sizing: border-box;
+     border-radius: 0 !important;
+   }
+   
+   /* ─── UTILITY CLASSES ────────────────────────────────────── */
+   
+   .pm-eyebrow {
+     font-family: var(--pm-font-mono);
+     font-size: 10px;
+     font-weight: 600;
+     letter-spacing: 0.16em;
+     text-transform: uppercase;
+     color: var(--pm-warm-gray);
+   }
+   
+   .pm-display {
+     font-family: var(--pm-font-display);
+     font-weight: 900;
+     line-height: 0.9;
+     letter-spacing: -0.02em;
+   }
+   
+   .pm-mono-label {
+     font-family: var(--pm-font-mono);
+     font-size: 10px;
+     font-weight: 600;
+     letter-spacing: 0.14em;
+     text-transform: uppercase;
+   }
+   
+   .pm-prose {
+     font-family: var(--pm-font-prose);
+     line-height: 1.7;
+   }
+   
+   /* ─── BADGE VARIANTS ─────────────────────────────────────── */
+   
+   .pm-badge {
+     display: inline-flex;
+     align-items: center;
+     font-family: var(--pm-font-mono);
+     font-size: 9px;
+     font-weight: 600;
+     letter-spacing: 0.1em;
+     text-transform: uppercase;
+     padding: 3px 8px;
+     border: 1.5px solid currentColor;
+     border-radius: 0 !important;
+     white-space: nowrap;
+   }
+   
+   .pm-badge--active   { color: var(--pm-teal);  }
+   .pm-badge--nemesis  { color: var(--pm-red);   background: var(--pm-red-tint);  }
+   .pm-badge--rival    { color: var(--pm-gold);  }
+   .pm-badge--dormant  { color: var(--pm-warm-gray); }
+   
+   /* ─── ELO DELTA PILLS ────────────────────────────────────── */
+   
+   .pm-delta {
+     font-family: var(--pm-font-mono);
+     font-size: 10px;
+     font-weight: 600;
+     padding: 2px 7px;
+     border: 1.5px solid currentColor;
+   }
+   .pm-delta--up   { color: var(--pm-green); }
+   .pm-delta--down { color: var(--pm-red);   }
+   .pm-delta--flat { color: var(--pm-warm-gray); }
+
+
