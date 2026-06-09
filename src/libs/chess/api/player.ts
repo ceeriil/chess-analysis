@@ -37,7 +37,7 @@ function transformPlayer(raw: RawPlayer): Player {
     countryCode: extractCountryCode(raw.country),
     joined:      new Date(raw.joined * 1000),
     lastOnline:  new Date(raw.last_online * 1000),
-    isOnline:    false,   // filled in separately by getOnlineStatus
+    isOnline:    false,   // filled in separately
     status:      raw.status,
     title:       raw.title ?? null,
     profileUrl:  raw.url,
@@ -93,28 +93,47 @@ export async function getPlayerStats(username: string): Promise<PlayerStats> {
 export async function getOnlineStatus(username: string): Promise<boolean> {
   const key = keys.online(username);
 
-  return cache.getOrFetch(key, CACHE_TTL.ONLINE_STATUS, async () => {
-    const raw = await chessGet<RawOnlineStatus>(
-      `/player/${username.toLowerCase()}/is-online`,
-    );
-    return raw.online;
-  });
+  // Non-fatal — Chess.com returns a JSON error body (not a 404) for some
+  // valid accounts: {"code":0,"message":"Data provider not found..."}.
+  // Catch everything and default to false rather than crashing.
+  try {
+    return await cache.getOrFetch(key, CACHE_TTL.ONLINE_STATUS, async () => {
+      const raw = await chessGet<RawOnlineStatus>(
+        `/player/${username.toLowerCase()}/is-online`,
+      );
+      // Guard against the error-body shape ({ code, message }) coming back
+      // with a 200 status — Chess.com does this for some accounts.
+      if (typeof raw.online !== 'boolean') return false;
+      return raw.online;
+    });
+  } catch {
+    return false;
+  }
 }
 
 // ─── COMBINED FETCH ──────────────────────────────────────────
 // Fetches profile + stats + online in parallel.
-// This is the standard entry point for the dashboard.
+// Uses allSettled so an is-online failure never kills the whole fetch.
+// Profile and stats failures ARE fatal — we can't show anything without them.
 
 export async function getPlayerFull(username: string): Promise<{
   player:   Player;
   stats:    PlayerStats;
   isOnline: boolean;
 }> {
-  const [player, stats, isOnline] = await Promise.all([
+  const [playerResult, statsResult, onlineResult] = await Promise.allSettled([
     getPlayer(username),
     getPlayerStats(username),
     getOnlineStatus(username),
   ]);
+
+  // Profile + stats are required — re-throw if either failed
+  if (playerResult.status === 'rejected') throw playerResult.reason;
+  if (statsResult.status  === 'rejected') throw statsResult.reason;
+
+  const player  = playerResult.value;
+  const stats   = statsResult.value;
+  const isOnline = onlineResult.status === 'fulfilled' ? onlineResult.value : false;
 
   return { player: { ...player, isOnline }, stats, isOnline };
 }
