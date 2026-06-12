@@ -31,8 +31,10 @@ import { TableRowSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PiSword }    from 'react-icons/pi';
 
-import type { OpponentSummary }          from '@/types';
+import type { OpponentSummary } from '@/types';
 import type { OpponentSortKey, OpponentSortDir } from '@/hooks/useOpponents';
+import { pickCurrentElo } from '@/hooks/useOpponentElos';
+import type { EloMap } from '@/hooks/useOpponentElos';
 
 // ─── TYPES ───────────────────────────────────────────────────
 
@@ -45,6 +47,7 @@ type OpponentsTableViewProps = {
   sort:         OpponentSortKey;
   sortDir:      OpponentSortDir;
   onSort:       (key: OpponentSortKey) => void;
+  eloMap:       EloMap;
 };
 
 // ─── HELPERS ─────────────────────────────────────────────────
@@ -85,6 +88,7 @@ export function OpponentsTableView({
   sort,
   sortDir,
   onSort,
+  eloMap,
 }: OpponentsTableViewProps) {
   const router = useRouter();
 
@@ -111,7 +115,9 @@ export function OpponentsTableView({
       header: 'Opponent',
       cell:   (info) => {
         const opp        = info.row.original;
-        const isRevenge  = myCurrentElo > opp.theirEloAtLast && opp.losses > 0;
+        const liveStats  = eloMap.get(opp.username.toLowerCase());
+        const liveElo    = liveStats ? pickCurrentElo(liveStats) : opp.theirEloAtLast;
+        const isRevenge  = myCurrentElo > liveElo && opp.losses > 0;
         return (
           <div className="flex items-center gap-2 min-w-0">
             {isRevenge && (
@@ -186,16 +192,19 @@ export function OpponentsTableView({
       id:     'theirElo',
       header: 'Their ELO',
       cell:   (info) => {
-        const opp = info.row.original;
+        const opp       = info.row.original;
+        const liveStats = eloMap.get(opp.username.toLowerCase());
+        const currentElo = liveStats ? pickCurrentElo(liveStats) : opp.theirEloAtLast;
+        const delta      = currentElo - opp.theirEloAtFirst;
         return (
           <div className="flex flex-col gap-1">
             <span
               style={{ fontFamily: "'Playfair Display', serif", lineHeight: '1' }}
               className="text-[16px] font-bold text-[#1A1A1A]"
             >
-              {opp.theirEloAtLast.toLocaleString()}
+              {currentElo.toLocaleString()}
             </span>
-            <DeltaPill value={opp.theirEloDelta} />
+            <DeltaPill value={delta} />
           </div>
         );
       },

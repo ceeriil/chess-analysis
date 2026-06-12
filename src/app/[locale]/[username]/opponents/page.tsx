@@ -28,6 +28,7 @@ import {
 import { usePlayer }           from '@/hooks/usePlayer';
 import { useGames }            from '@/hooks/useGames';
 import { useOpponents }        from '@/hooks/useOpponents';
+import { useOpponentElos, pickCurrentElo } from '@/hooks/useOpponentElos';
 
 import { OpponentsStatsBar }   from '@/components/opponents/OpponentsStatsBar';
 import { OpponentsFilterBar }  from '@/components/opponents/OpponentsFilterBar';
@@ -91,7 +92,7 @@ export default function OpponentsPage({ params }: OpponentsPageProps) {
   // ── Derive opponents from the DEFERRED games ──
   const {
     all,
-    opponents,
+    opponents: baseOpponents,
     counts,
     sort,
     sortDir,
@@ -104,6 +105,24 @@ export default function OpponentsPage({ params }: OpponentsPageProps) {
   } = useOpponents(deferredGames, username);
 
   const myCurrentElo = stats?.rapid?.current ?? stats?.blitz?.current ?? 0;
+
+  // Fetch current ELO for every opponent in background batches.
+  // Uses `all` (pre-filter) so hidden opponents still get fetched.
+  const allUsernames = useMemo(() => all.map((o) => o.username), [all]);
+  const { eloMap } = useOpponentElos(allUsernames);
+
+  // When sorting by theirElo, override with live current elo from the API.
+  // Falls back to theirEloAtLast for opponents not yet fetched.
+  const opponents = useMemo(() => {
+    if (sort !== 'theirElo' || eloMap.size === 0) return baseOpponents;
+    return [...baseOpponents].sort((a, b) => {
+      const aStats = eloMap.get(a.username.toLowerCase());
+      const bStats = eloMap.get(b.username.toLowerCase());
+      const aElo = aStats ? pickCurrentElo(aStats) : a.theirEloAtLast;
+      const bElo = bStats ? pickCurrentElo(bStats) : b.theirEloAtLast;
+      return sortDir === 'asc' ? aElo - bElo : bElo - aElo;
+    });
+  }, [baseOpponents, sort, sortDir, eloMap]);
 
   // ── Full-page loading (first fetch only) ──
   if (gamesLoading) {
@@ -215,6 +234,7 @@ export default function OpponentsPage({ params }: OpponentsPageProps) {
             username={username}
             locale={locale}
             myCurrentElo={myCurrentElo}
+            eloMap={eloMap}
           />
         ) : (
           <OpponentsTableView
@@ -226,6 +246,7 @@ export default function OpponentsPage({ params }: OpponentsPageProps) {
             sort={sort}
             sortDir={sortDir}
             onSort={setSort}
+            eloMap={eloMap}
           />
         )}
       </div>

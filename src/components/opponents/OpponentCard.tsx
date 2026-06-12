@@ -33,6 +33,7 @@ type OpponentCardProps = {
   opponent:     OpponentSummary;
   href:         string;
   myCurrentElo: number;
+  currentElo:   number;
 };
 
 // ─── HELPERS ─────────────────────────────────────────────────
@@ -81,14 +82,15 @@ const IS_DARK = new Set(['nemesis']);
 
 // ─── COMPONENT ───────────────────────────────────────────────
 
-export function OpponentCard({ opponent, href, myCurrentElo }: OpponentCardProps) {
+export function OpponentCard({ opponent, href, myCurrentElo, currentElo }: OpponentCardProps) {
   const dark         = IS_DARK.has(opponent.badge);
   const streak       = formatStreak(opponent.currentStreak);
   const topOpening   = opponent.openingsAgainstMe[0];
-  const isRevenge    = myCurrentElo > opponent.theirEloAtLast
+  const isRevenge    = myCurrentElo > currentElo
                     && opponent.losses > 0
                     && opponent.badge !== 'punching-bag';
-  const eloDeltaSign = opponent.theirEloDelta >= 0 ? '+' : '';
+  const eloDelta     = currentElo - opponent.theirEloAtFirst;
+  const eloDeltaSign = eloDelta >= 0 ? '+' : '';
 
   const textPrimary   = dark ? 'text-[#F8F3E8]' : 'text-[#1A1A1A]';
   const textSecondary = dark ? 'text-[#9B9088]' : 'text-[#9B9088]';
@@ -215,9 +217,9 @@ export function OpponentCard({ opponent, href, myCurrentElo }: OpponentCardProps
             style={{ fontFamily: "'Playfair Display', serif", lineHeight: '1' }}
             className={`text-[22px] font-black ${textPrimary}`}
           >
-            {opponent.theirEloAtLast.toLocaleString()}
+            {currentElo.toLocaleString()}
           </p>
-          <DeltaPill value={opponent.theirEloDelta} label={`${eloDeltaSign}${opponent.theirEloDelta} since meeting`} />
+          <DeltaPill value={eloDelta} label={`${eloDeltaSign}${eloDelta} since meeting`} />
         </div>
 
         {/* Met at context */}

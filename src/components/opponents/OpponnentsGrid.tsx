@@ -8,7 +8,9 @@ import { OpponentCard }        from '@/components/opponents/OpponentCard';
 import { OpponentCardSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState }           from '@/components/ui/EmptyState';
 import { PiSword }              from 'react-icons/pi';
+import { pickCurrentElo }       from '@/hooks/useOpponentElos';
 import type { OpponentSummary } from '@/types';
+import type { EloMap }          from '@/hooks/useOpponentElos';
 
 // ─── TYPES ───────────────────────────────────────────────────
 
@@ -18,6 +20,7 @@ type OpponentsGridProps = {
   username:     string;
   locale:       string;
   myCurrentElo: number;
+  eloMap:       EloMap;
 };
 
 // ─── COMPONENT ───────────────────────────────────────────────
@@ -28,6 +31,7 @@ export function OpponentsGrid({
   username,
   locale,
   myCurrentElo,
+  eloMap,
 }: OpponentsGridProps) {
 
   if (loading) {
@@ -77,6 +81,10 @@ export function OpponentsGrid({
               opponent={opp}
               href={`/${locale}/${username}/opponents/${opp.username}`}
               myCurrentElo={myCurrentElo}
+              currentElo={(() => {
+                const s = eloMap.get(opp.username.toLowerCase());
+                return s ? pickCurrentElo(s) : opp.theirEloAtLast;
+              })()}
             />
           </div>
         );
