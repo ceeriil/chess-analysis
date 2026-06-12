@@ -158,8 +158,13 @@ export async function getAllGames(
   for (let i = 0; i < archives.length; i++) {
     const { year, month } = archives[i]!;
 
-    const games = await getMonthlyGames(username, year, month);
-    all.push(...games);
+    try {
+      const games = await getMonthlyGames(username, year, month);
+      all.push(...games);
+    } catch {
+      // Chess.com sometimes lists an archive month that returns 404 on fetch —
+      // skip the broken month rather than aborting the entire history load.
+    }
 
     onProgress?.(i + 1, total);
   }

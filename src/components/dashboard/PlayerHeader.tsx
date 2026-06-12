@@ -92,7 +92,6 @@ export function PlayerHeader({ player, stats, timeControl }: PlayerHeaderProps) 
             <span className="flex items-center gap-1">
               <PiCircle
                 size={8}
-                weight="fill"
                 className={player.isOnline ? 'text-[#22AA44] fill-[#22AA44]' : 'text-[#C5C8B5] fill-[#C5C8B5]'}
               />
               <span

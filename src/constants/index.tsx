@@ -132,7 +132,7 @@ export function getMonthsBetween(from: Date, to: Date): Array<{ year: number; mo
   return months;
 }
 
-export function extractCountryCode(countryUrl: string): string {
+export function extractCountryCode(countryUrl: string | null | undefined): string {
   // "https://api.chess.com/pub/country/NG" → "NG"
-  return countryUrl.split('/').pop() ?? 'XX';
+  return countryUrl?.split('/').pop() ?? 'XX';
 }

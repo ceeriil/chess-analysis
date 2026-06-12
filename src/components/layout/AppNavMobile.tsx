@@ -7,6 +7,7 @@
 
 import Link           from 'next/link';
 import { usePathname } from 'next/navigation';
+import React from 'react';
 import {
   PiHouse,
   PiSword,
@@ -27,12 +28,19 @@ export function AppNavMobile({ username, locale }: AppNavMobileProps) {
   const pathname = usePathname();
   const base     = `/${locale}/${username}`;
 
-  const tabs = [
+type Tab = {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ size?: number }>;
+  exact: boolean;
+};
+
+  const tabs: Tab[] = [
     { label: 'Home',      href: base,                   icon: PiHouse,        exact: true },
-    { label: 'Opponents', href: `${base}/opponents`,     icon: PiSword              },
-    { label: 'Nemeses',   href: `${base}/nemeses`,        icon: PiSkullDuotone       },
-    { label: 'Tracking',  href: `${base}/tracking`,       icon: PiChartLine          },
-  ] as const;
+    { label: 'Opponents', href: `${base}/opponents`,     icon: PiSword,        exact: false },
+    { label: 'Nemeses',   href: `${base}/nemeses`,        icon: PiSkullDuotone, exact: false },
+    { label: 'Tracking',  href: `${base}/tracking`,       icon: PiChartLine,    exact: false },
+  ];
 
   function isActive(href: string, exact?: boolean) {
     return exact ? pathname === href : pathname.startsWith(href);

@@ -35,7 +35,7 @@ export type RawPlayer = {
   url:          string;
   username:     string;
   followers:    number;
-  country:      string;    // URL like "https://api.chess.com/pub/country/NG"
+  country?:     string;    // URL like "https://api.chess.com/pub/country/NG" — absent for some accounts
   last_online:  number;    // Unix timestamp
   joined:       number;    // Unix timestamp
   status:       string;    // 'premium' | 'basic' | 'mod' | 'staff' | 'closed'
