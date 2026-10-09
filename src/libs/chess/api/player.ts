@@ -48,10 +48,14 @@ function transformPlayer(raw: RawPlayer): Player {
 function transformRatingCategory(raw: RawRatingCategory): PlayerRating {
   const total = raw.record.win + raw.record.loss + raw.record.draw;
 
+  // Chess.com omits `last` or `best` for dormant/edge-case accounts even
+  // when the category object is present — guard rather than assume.
+  const current = raw.last?.rating ?? 0;
+
   return {
-    current:  raw.last.rating,
-    best:     raw.best.rating,
-    bestDate: new Date(raw.best.date * 1000),
+    current,
+    best:     raw.best?.rating ?? current,
+    bestDate: raw.best?.date ? new Date(raw.best.date * 1000) : new Date(0),
     wins:     raw.record.win,
     losses:   raw.record.loss,
     draws:    raw.record.draw,

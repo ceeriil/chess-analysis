@@ -33,6 +33,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
+.env
 .env*.local
 
 # Sentry Config File
@@ -47,9 +48,6 @@ local
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Database
-*.db
 
 # storybook
 storybook-static

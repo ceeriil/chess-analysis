@@ -83,7 +83,7 @@ export async function getArchives(username: string): Promise<MonthYear[]> {
       `/player/${username.toLowerCase()}/games/archives`,
     );
 
-    return raw.archives.map((url) => {
+    return (raw.archives ?? []).map((url) => {
       const parts = url.split('/');
       return {
         year:  parseInt(parts.at(-2) ?? '2020', 10),
